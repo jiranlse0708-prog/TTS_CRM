@@ -1,75 +1,17 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>TTS CRM - 메인 페이지</title>
-</head>
-<body style="margin: 0; padding: 16px; background: #f5f5f5; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;">
 
-<div style="background: white; border-radius: 12px; border: 0.5px solid #e0e0e0; overflow: hidden; display: flex; height: calc(100vh - 32px);">
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>TTS_CRM</title>
+      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+      <script type="module" crossorigin src="/TTS_CRM/assets/index-Dv8tEeJz.js"></script>
+      <link rel="stylesheet" crossorigin href="/TTS_CRM/assets/index-Yn0eUKlh.css">
+    </head>
 
-  <div style="width: 200px; border-right: 0.5px solid #e0e0e0; padding: 16px; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0;">
-    <button style="width: 100%; text-align: left; padding: 8px 12px; font-size: 13px; border-radius: 8px; border: 0.5px solid #e0e0e0; background: white; cursor: pointer;">+ 새 채팅</button>
-    <div style="font-size: 11px; color: #aaa; padding: 0 4px;">채팅 목록</div>
-    <div onclick="window.location.href='TTS_CRM_chat_extract.html'" style="font-size: 12px; color: #555; padding: 4px 8px; border-radius: 8px; background: #f5f5f5; cursor: pointer;">지난 달 상품별 및 지역별...</div>
-    <div onclick="window.location.href='TTS_CRM_chat_analysis.html'" style="font-size: 12px; color: #555; padding: 4px 8px; cursor: pointer;">제품별 매출 비중 분석</div>
-    <div onclick="window.location.href='TTS_CRM_chat_extract.html'" style="font-size: 12px; color: #555; padding: 4px 8px; cursor: pointer;">영업 담당자별 계약 실적</div>
-    <div onclick="window.location.href='TTS_CRM_chat_analysis.html'" style="font-size: 12px; color: #555; padding: 4px 8px; cursor: pointer;">클라우드 제품 판매 추이</div>
-    <div style="flex: 1;"></div>
-    <div style="border-top: 0.5px solid #e0e0e0; padding-top: 12px; display: flex; align-items: center; gap: 8px;">
-      <div style="width: 28px; height: 28px; border-radius: 50%; background: #f5f5f5; border: 0.5px solid #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="5" r="2.5" stroke="#888780" stroke-width="1.2"/>
-          <path d="M2 12c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="#888780" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div style="overflow: hidden;">
-        <p style="font-size: 12px; font-weight: 500; color: #1a1a1a; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">이세은</p>
-        <p style="font-size: 11px; color: #aaa; margin: 0;">seeun0708</p>
-      </div>
-    </div>
-  </div>
-
-  <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
-
-    <div style="padding: 14px 24px; border-bottom: 0.5px solid #e0e0e0; display: flex; align-items: center; gap: 8px;">
-      <div style="width: 28px; height: 28px; border-radius: 50%; background: #EEEDFE; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2L8.8 5.5L12 5L9.5 7.5L11 11L8 9L5 11L6.5 7.5L4 5L7.2 5.5Z" fill="#534AB7"/>
-          <path d="M13 1L13.4 2.6L15 3L13.4 3.4L13 5L12.6 3.4L11 3L12.6 2.6Z" fill="#AFA9EC"/>
-          <path d="M3 11L3.3 12.3L4.5 12.5L3.3 12.7L3 14L2.7 12.7L1.5 12.5L2.7 12.3Z" fill="#AFA9EC"/>
-        </svg>
-      </div>
-      <span style="font-size: 15px; font-weight: 500; color: #1a1a1a;">AI 큐피드</span>
-      <span style="font-size: 11px; padding: 2px 7px; border-radius: 10px; background: #FAC775; color: #633806;">BETA</span>
-    </div>
-
-    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 24px;">
-      <div style="text-align: center;">
-        <div style="width: 56px; height: 56px; border-radius: 50%; background: #EEEDFE; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <path d="M16 4L17.6 11L24 10L19 15L22 22L16 18L10 22L13 15L8 10L14.4 11Z" fill="#534AB7"/>
-            <path d="M26 3L26.7 5.8L29.5 6L26.7 6.2L26 9L25.3 6.2L22.5 6L25.3 5.8Z" fill="#AFA9EC"/>
-            <path d="M6 22L6.5 24.3L8.5 24.5L6.5 24.7L6 27L5.5 24.7L3.5 24.5L5.5 24.3Z" fill="#AFA9EC"/>
-          </svg>
-        </div>
-        <p style="font-size: 16px; font-weight: 500; color: #1a1a1a; margin: 0 0 8px;">안녕하세요. CRM 데이터 전문가 큐피드입니다.</p>
-        <p style="font-size: 13px; color: #555; margin: 0 0 4px;"><span style="color: #534AB7; font-weight: 500;">Query</span>는 제가 작성할게요.</p>
-        <p style="font-size: 13px; color: #555; margin: 0;">원하는 데이터를 <span style="color: #534AB7; font-weight: 500;">Speed</span>하게 전해드려요.</p>
-      </div>
-
-      <div style="width: 100%; max-width: 560px; border: 0.5px solid #ddd; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 8px;">
-        <input type="text" placeholder="궁금한 데이터를 물어보세요." style="flex: 1; border: none; outline: none; font-size: 13px; background: transparent; color: #1a1a1a;" />
-        <button style="width: 28px; height: 28px; border-radius: 50%; background: #534AB7; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 2L12 7L7 12M2 7H12" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-</body>
-</html>
+    <body>
+      <div id="root"></div>
+    </body>
+  </html>
+  
