@@ -342,7 +342,7 @@ export default function App() {
                 <div className="max-w-[720px]">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-[16px] font-semibold text-[#1a1a1a]">비즈니스 공통 설정</h2>
-                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#FEF3F2] text-[#B42318]">수정 권한 없음</span>
+                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#f5f5f5] text-[#555]">수정 권한 없음</span>
                   </div>
                   <p className="text-[13px] text-[#888780] mb-5">사내 도메인 용어와 계산식을 등록하여 더 정확한 답변을 제공합니다. 등록된 설정은 모든 사용자에게 동일하게 적용됩니다.</p>
 
