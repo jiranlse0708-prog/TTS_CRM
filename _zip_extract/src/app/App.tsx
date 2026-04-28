@@ -340,7 +340,10 @@ export default function App() {
               {settingsTab === 'business' ? (
                 /* 비즈니스 맞춤 설정 */
                 <div className="max-w-[720px]">
-                  <h2 className="text-[16px] font-semibold text-[#1a1a1a] mb-1">비즈니스 맞춤 설정</h2>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-[16px] font-semibold text-[#1a1a1a]">비즈니스 맞춤 설정</h2>
+                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#F5F4FE] text-[#534AB7]">기업 공통</span>
+                  </div>
                   <p className="text-[13px] text-[#888780] mb-5">사내 도메인 용어와 계산식을 등록하여 더 정확한 답변을 제공합니다. 등록된 설정은 모든 사용자에게 동일하게 적용됩니다.</p>
 
                   {!isAdmin && (
@@ -585,7 +588,10 @@ export default function App() {
               ) : (
                 /* 답변 스타일 설정 */
                 <div className="max-w-[600px]">
-                  <h2 className="text-[16px] font-semibold text-[#1a1a1a] mb-1">답변 스타일 설정</h2>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-[16px] font-semibold text-[#1a1a1a]">답변 스타일 설정</h2>
+                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#f5f5f5] text-[#555]">개인 맞춤</span>
+                  </div>
                   <p className="text-[13px] text-[#888780] mb-5">개인이 선호하는 답변 방식과 형식을 설정합니다. 설정 내용은 본인 계정에만 적용되며, 관리자도 타 계정의 내용을 조회할 수 없어요.</p>
 
                   <textarea
