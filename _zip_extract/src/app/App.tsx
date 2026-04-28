@@ -292,15 +292,9 @@ export default function App() {
                 placeholder="대화 내용을 검색하세요."
                 className="flex-1 border-none outline-none text-[14px] text-[#1a1a1a] placeholder:text-[#bbb]"
               />
-              {chatSearchQuery ? (
-                <button onClick={() => setChatSearchQuery('')} className="text-[#aaa] hover:text-[#555] transition-colors">
-                  <X size={14} />
-                </button>
-              ) : (
-                <button onClick={() => setShowSearchModal(false)} className="text-[#aaa] hover:text-[#555] transition-colors text-[11px]">
-                  ESC
-                </button>
-              )}
+              <button onClick={() => { setChatSearchQuery(''); setShowSearchModal(false); }} className="text-[#aaa] hover:text-[#555] transition-colors">
+                <X size={14} />
+              </button>
             </div>
 
             {/* 검색 결과 */}
@@ -316,9 +310,8 @@ export default function App() {
                         <div
                           key={`h-${i}`}
                           onClick={() => { setCurrentView('chat'); setShowSearchModal(false); }}
-                          className="flex items-center gap-3 px-5 py-3 hover:bg-[#f5f5f5] cursor-pointer transition-colors"
+                          className="px-5 py-3 hover:bg-[#f5f5f5] cursor-pointer transition-colors"
                         >
-                          <Search size={13} className="text-[#aaa] flex-shrink-0" />
                           <span className="text-[13px] text-[#1a1a1a]">{chat}</span>
                         </div>
                       ))}
@@ -326,13 +319,10 @@ export default function App() {
                         <div
                           key={`m-${i}`}
                           onClick={() => { setCurrentView('chat'); setShowSearchModal(false); }}
-                          className="flex items-start gap-3 px-5 py-3 hover:bg-[#f5f5f5] cursor-pointer transition-colors"
+                          className="px-5 py-3 hover:bg-[#f5f5f5] cursor-pointer transition-colors"
                         >
-                          <Search size={13} className="text-[#aaa] flex-shrink-0 mt-[2px]" />
-                          <div>
-                            <p className="text-[11px] text-[#aaa] mb-0.5">{msg.type === 'user' ? '내 메시지' : 'AI 큐피드'}</p>
-                            <p className="text-[13px] text-[#1a1a1a] line-clamp-1">{msg.content}</p>
-                          </div>
+                          <p className="text-[11px] text-[#aaa] mb-0.5">{msg.type === 'user' ? '내 메시지' : 'AI 큐피드'}</p>
+                          <p className="text-[13px] text-[#1a1a1a] line-clamp-1">{msg.content}</p>
                         </div>
                       ))}
                     </div>
