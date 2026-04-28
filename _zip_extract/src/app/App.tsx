@@ -654,7 +654,7 @@ export default function App() {
 
             {messages.length === 0 ? (
               /* 웰컴 화면 */
-              <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6">
+              <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6">
                 <div className="text-center">
                   <div className="w-14 h-14 rounded-full bg-[#EEEDFE] flex items-center justify-center mx-auto mb-4">
                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -679,7 +679,9 @@ export default function App() {
                   </div>
                 </form>
 
-                <div className="w-full max-w-[560px] grid grid-cols-2 gap-2">
+                <div className="w-full max-w-[560px] mt-4">
+                  <p className="text-[12px] text-[#aaa] mb-2">이런 질문은 어떠세요?</p>
+                  <div className="grid grid-cols-2 gap-2">
                   {recommendedQuestions.map((item, i) => (
                     <button
                       key={i}
@@ -690,6 +692,7 @@ export default function App() {
                       {item.query}
                     </button>
                   ))}
+                  </div>
                 </div>
               </div>
             ) : (
