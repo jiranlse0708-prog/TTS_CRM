@@ -685,7 +685,7 @@ export default function App() {
                       key={i}
                       type="button"
                       onClick={() => handleRecommendedClick(item.query)}
-                      className="text-left px-4 py-5 rounded-xl bg-white shadow-sm hover:shadow-md hover:text-[#534AB7] transition-all text-[12px] text-[#aaa] leading-snug h-[80px] flex items-center"
+                      className="text-left px-4 py-5 rounded-xl bg-white border-[0.5px] border-[#e8e8e8] hover:border-[#534AB7] hover:text-[#534AB7] transition-all text-[12px] text-[#aaa] leading-snug h-[80px] flex items-center"
                     >
                       {item.query}
                     </button>
