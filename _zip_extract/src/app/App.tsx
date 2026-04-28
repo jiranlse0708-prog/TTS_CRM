@@ -591,7 +591,7 @@ export default function App() {
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-[16px] font-semibold text-[#1a1a1a]">개인 맞춤 설정</h2>
                   </div>
-                  <p className="text-[13px] text-[#888780] mb-5">개인이 선호하는 답변 방식과 형식을 설정합니다. 설정 내용은 본인 계정에만 적용되며, 관리자도 타 계정의 내용을 조회할 수 없어요.</p>
+                  <p className="text-[13px] text-[#888780] mb-5">개인이 선호하는 답변 스타일을 설정합니다. 설정 내용은 본인 계정에만 적용됩니다.</p>
 
                   <textarea
                     value={styleText}
