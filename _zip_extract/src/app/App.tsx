@@ -591,7 +591,7 @@ export default function App() {
                   <textarea
                     value={styleText}
                     onChange={e => { if (e.target.value.length <= 2000) { setStyleText(e.target.value); setStyleSaved(false); } }}
-                    placeholder={"예시)\n- 모든 금액은 백만 원 단위로 표시해주세요.\n- 날짜는 YYYY년 M월 형식으로 표기합니다.\n- 친근한 경어체로 답변하되, SQL 같은 기술 용어는 쉬운 말로 풀어서 설명해주세요."}
+                    placeholder={"예시)\n- 모든 금액은 백만 원 단위로 표시해주세요.\n- 날짜는 YYYY년 M월 형식으로 표기합니다.\n- 10줄 이내 분량으로 자세하게 풀어서 설명해주세요."}
                     className="w-full h-[220px] px-4 py-3 text-[13px] border-[0.5px] border-[#e0e0e0] rounded-lg outline-none focus:border-[#534AB7] transition-colors resize-none leading-relaxed mb-2"
                   />
 
@@ -609,7 +609,7 @@ export default function App() {
 
                   <div className="p-3.5 bg-[#f5f5f5] rounded-lg text-[12px] text-[#888780] leading-relaxed">
                     <p className="font-medium text-[#555] mb-1">등록 예시 항목</p>
-                    <p>금액 단위, 소수점 반올림 기준, 날짜 표기 형식, 답변 톤·어조, 설명 방식 등을 자유롭게 입력하세요.</p>
+                    <p>금액 단위, 소수점 반올림, 날짜 표기 형식, 답변 톤·어조 등을 자유롭게 입력하세요.</p>
                   </div>
                 </div>
               )}
