@@ -361,7 +361,7 @@ export default function App() {
             <span>검색</span>
           </button>
 
-          <div className="text-[11px] text-[#aaa] px-1">채팅 목록</div>
+          <div className="text-[11px] text-[#aaa] px-1 mt-3">채팅 목록</div>
 
           <div className="flex flex-col gap-1">
             {chatHistory.map((chat, index) => (
