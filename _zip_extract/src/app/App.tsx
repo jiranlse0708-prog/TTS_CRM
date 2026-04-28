@@ -72,6 +72,15 @@ export default function App() {
     '1988년 1월 PC필터 판매 리스트',
   ];
 
+  const recommendedQuestions = [
+    { title: '이번 달 제품별 매출 현황', query: '이번 달 제품별 매출 현황을 보여줘' },
+    { title: '최근 계약 고객사 목록', query: '최근 30일 내 계약한 고객사 목록 보여줘' },
+    { title: '만료 예정 라이선스 목록', query: '30일 내 만료 예정인 라이선스 목록 보여줘' },
+    { title: '월별 신규 계약 추이', query: '최근 6개월 월별 신규 계약 건수 보여줘' },
+    { title: '지역별 매출 현황', query: '지역별 이번 달 매출 현황 보여줘' },
+    { title: '제품 판매 비중 분석', query: '지난달 제품별 판매 비중을 차트로 보여줘' },
+  ];
+
   const chatHistory = [
     '지난 달 상품별 및 지역별...',
     '제품별 매출 비중 분석',
@@ -152,6 +161,10 @@ export default function App() {
   const handleSuggestionClick = (suggestion: string) => {
     setMessage(suggestion);
     setShowSuggestions(false);
+  };
+
+  const handleRecommendedClick = (query: string) => {
+    setMessage(query);
   };
 
   const renderPagination = () => {
@@ -656,19 +669,8 @@ export default function App() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="w-full max-w-[560px]">
-                  {showSuggestions && (
-                    <div className="mb-3 flex flex-wrap gap-2 justify-center">
-                      {suggestions.map((sug, i) => (
-                        <button key={i} type="button" onClick={() => handleSuggestionClick(sug)}
-                          className="px-3 py-1.5 text-[12px] text-[#534AB7] bg-[#F5F4FE] border-[0.5px] border-[#D4D2F9] rounded-full hover:bg-[#EEEDFE] transition-colors">
-                          {sug}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                   <div className="border-[0.5px] border-[#ddd] rounded-xl px-4 py-3 flex items-center gap-2 focus-within:border-[#534AB7] transition-colors">
                     <input type="text" value={message} onChange={e => setMessage(e.target.value)}
-                      onFocus={() => setShowSuggestions(true)} onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                       placeholder="궁금한 데이터를 물어보세요."
                       className="flex-1 border-none outline-none text-[13px] bg-transparent text-[#1a1a1a] placeholder:text-[#aaa]" />
                     <button type="submit" className="w-7 h-7 rounded-full bg-[#534AB7] hover:bg-[#4239a0] transition-colors flex items-center justify-center flex-shrink-0">
@@ -676,6 +678,19 @@ export default function App() {
                     </button>
                   </div>
                 </form>
+
+                <div className="w-full max-w-[560px] grid grid-cols-2 gap-2">
+                  {recommendedQuestions.map((item, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleRecommendedClick(item.query)}
+                      className="text-left px-4 py-4 rounded-xl border-[0.5px] border-[#e0e0e0] bg-white hover:border-[#534AB7] hover:bg-[#F5F4FE] transition-colors text-[13px] text-[#1a1a1a] leading-snug"
+                    >
+                      {item.title}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               /* 채팅 메시지 */
