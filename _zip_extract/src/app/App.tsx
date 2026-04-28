@@ -315,7 +315,7 @@ export default function App() {
 
             {/* 서브 메뉴 */}
             <div className="w-[168px] border-r-[0.5px] border-[#e0e0e0] p-3 flex flex-col gap-1 flex-shrink-0">
-              <div className="text-[11px] text-[#aaa] px-2 py-1 mb-1">설정</div>
+              <div className="text-[11px] text-[#aaa] px-2 py-1 mb-1">조직 공통</div>
               <button
                 onClick={() => { setSettingsTab('business'); setSearchQuery(''); setShowAddTerm(false); setShowAddFormula(false); setEditingTermId(null); setEditingFormulaId(null); }}
                 className={`text-left px-3 py-2 text-[13px] rounded-lg transition-colors ${
@@ -324,6 +324,7 @@ export default function App() {
               >
                 비즈니스 맞춤 설정
               </button>
+              <div className="text-[11px] text-[#aaa] px-2 py-1 mt-2 mb-1">내 설정</div>
               <button
                 onClick={() => setSettingsTab('style')}
                 className={`text-left px-3 py-2 text-[13px] rounded-lg transition-colors ${
