@@ -72,7 +72,7 @@ export default function App() {
     '1988년 1월 PC필터 판매 리스트',
   ];
 
-  const recommendedQuestions = [
+  const allRecommendedQuestions = [
     { title: '이번 달 제품별 매출 현황', query: '이번 달 제품별 매출 현황을 보여줘' },
     { title: '최근 계약 고객사 목록', query: '최근 30일 내 계약한 고객사 목록 보여줘' },
     { title: '만료 예정 라이선스 목록', query: '30일 내 만료 예정인 라이선스 목록 보여줘' },
@@ -80,6 +80,9 @@ export default function App() {
     { title: '지역별 매출 현황', query: '지역별 이번 달 매출 현황 보여줘' },
     { title: '제품 판매 비중 분석', query: '지난달 제품별 판매 비중을 차트로 보여줘' },
   ];
+  const [recommendedQuestions] = useState(() =>
+    [...allRecommendedQuestions].sort(() => Math.random() - 0.5).slice(0, 4)
+  );
 
   const chatHistory = [
     '지난 달 상품별 및 지역별...',
