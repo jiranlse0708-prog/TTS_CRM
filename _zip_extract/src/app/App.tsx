@@ -344,7 +344,7 @@ export default function App() {
                     <h2 className="text-[16px] font-semibold text-[#1a1a1a]">비즈니스 공통 설정</h2>
                     <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#f5f5f5] text-[#555]">관리자 전용</span>
                   </div>
-                  <p className="text-[13px] text-[#888780] mb-5">비즈니스 문맥을 이해하여 더 정확한 답변을 제공합니다. 등록된 설정은 모든 사용자에게 동일하게 적용됩니다.</p>
+                  <p className="text-[13px] text-[#888780] mb-5">사내 기준을 설정하면 비즈니스 문맥을 이해하여 더 정확한 답변을 제공합니다. 등록된 설정은 모든 사용자에게 동일하게 적용됩니다.</p>
 
                   {!isAdmin && (
                     <div className="mb-4 px-3 py-2 bg-[#f5f5f5] rounded-lg text-[12px] text-[#888780]">
