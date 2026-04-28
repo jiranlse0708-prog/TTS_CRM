@@ -32,7 +32,8 @@ export default function App() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // ── 화면 전환 ──────────────────────────────────────────
-  const [currentView, setCurrentView] = useState<'chat' | 'settings'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'settings' | 'search'>('chat');
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
 
   // ── 맞춤 설정 상태 ────────────────────────────────────
   const [settingsTab, setSettingsTab] = useState<'business' | 'style'>('business');
@@ -272,13 +273,23 @@ export default function App() {
 
         {/* ── 사이드바 ── */}
         <div className="w-[200px] border-r-[0.5px] border-[#e0e0e0] p-4 flex flex-col gap-3 flex-shrink-0">
-          <button
-            onClick={() => { setMessages([]); setCurrentView('chat'); }}
-            className="w-full text-left px-3 py-2 text-[13px] rounded-lg border-[0.5px] border-[#e0e0e0] bg-white hover:bg-[#f5f5f5] transition-colors flex items-center gap-2"
-          >
-            <Plus size={14} />
-            <span>새 채팅</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setMessages([]); setCurrentView('chat'); }}
+              className="flex-1 text-left px-3 py-2 text-[13px] rounded-lg border-[0.5px] border-[#e0e0e0] bg-white hover:bg-[#f5f5f5] transition-colors flex items-center gap-2"
+            >
+              <Plus size={14} />
+              <span>새 채팅</span>
+            </button>
+            <button
+              onClick={() => { setChatSearchQuery(''); setCurrentView('search'); }}
+              className={`px-3 py-2 rounded-lg border-[0.5px] border-[#e0e0e0] transition-colors flex items-center justify-center ${
+                currentView === 'search' ? 'bg-[#EEEDFE] text-[#534AB7] border-[#534AB7]' : 'bg-white hover:bg-[#f5f5f5] text-[#555]'
+              }`}
+            >
+              <Search size={14} />
+            </button>
+          </div>
 
           <div className="text-[11px] text-[#aaa] px-1">채팅 목록</div>
 
@@ -324,7 +335,89 @@ export default function App() {
         </div>
 
         {/* ── 메인 영역 ── */}
-        {currentView === 'settings' ? (
+        {currentView === 'search' ? (
+
+          /* ───── 검색 뷰 ───── */
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="px-6 py-[14px] border-b-[0.5px] border-[#e0e0e0] flex items-center gap-3">
+              <button onClick={() => setCurrentView('chat')} className="text-[#aaa] hover:text-[#555] transition-colors">
+                <X size={16} />
+              </button>
+              <span className="text-[15px] font-medium text-[#1a1a1a]">검색</span>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-[600px] mx-auto">
+                <div className="border border-[#ddd] rounded-2xl px-5 py-4 flex items-center gap-2 focus-within:border-[#534AB7] shadow-sm transition-colors mb-6">
+                  <Search size={15} className="text-[#aaa] flex-shrink-0" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={chatSearchQuery}
+                    onChange={e => setChatSearchQuery(e.target.value)}
+                    placeholder="대화 내용을 검색하세요."
+                    className="flex-1 border-none outline-none text-[14px] bg-transparent text-[#1a1a1a] placeholder:text-[#bbb]"
+                  />
+                  {chatSearchQuery && (
+                    <button onClick={() => setChatSearchQuery('')} className="text-[#aaa] hover:text-[#555]">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {chatSearchQuery ? (
+                  <div className="flex flex-col gap-6">
+                    {/* 대화 목록 결과 */}
+                    <div>
+                      <p className="text-[11px] text-[#aaa] mb-2 px-1">대화 목록</p>
+                      {chatHistory.filter(c => c.includes(chatSearchQuery)).length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {chatHistory.filter(c => c.includes(chatSearchQuery)).map((chat, i) => (
+                            <div
+                              key={i}
+                              onClick={() => setCurrentView('chat')}
+                              className="px-4 py-3 rounded-xl border-[0.5px] border-[#e8e8e8] hover:border-[#534AB7] hover:bg-[#F5F4FE] cursor-pointer transition-colors"
+                            >
+                              <p className="text-[13px] text-[#1a1a1a]">{chat}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[13px] text-[#aaa] px-1">일치하는 대화가 없습니다.</p>
+                      )}
+                    </div>
+
+                    {/* 현재 대화 메시지 결과 */}
+                    <div>
+                      <p className="text-[11px] text-[#aaa] mb-2 px-1">현재 대화 메시지</p>
+                      {messages.filter(m => m.content.includes(chatSearchQuery)).length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {messages.filter(m => m.content.includes(chatSearchQuery)).map((msg, i) => (
+                            <div
+                              key={i}
+                              onClick={() => setCurrentView('chat')}
+                              className="px-4 py-3 rounded-xl border-[0.5px] border-[#e8e8e8] hover:border-[#534AB7] hover:bg-[#F5F4FE] cursor-pointer transition-colors"
+                            >
+                              <p className="text-[11px] text-[#aaa] mb-1">{msg.type === 'user' ? '나' : 'AI 큐피드'}</p>
+                              <p className="text-[13px] text-[#1a1a1a] line-clamp-2">{msg.content}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[13px] text-[#aaa] px-1">일치하는 메시지가 없습니다.</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 gap-2">
+                    <Search size={32} className="text-[#e0e0e0]" />
+                    <p className="text-[13px] text-[#aaa]">검색어를 입력하세요.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+        ) : currentView === 'settings' ? (
 
           /* ───── 맞춤 설정 뷰 ───── */
           <div className="flex-1 flex min-w-0">
