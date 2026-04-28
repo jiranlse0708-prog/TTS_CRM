@@ -596,7 +596,7 @@ export default function App() {
                   <textarea
                     value={styleText}
                     onChange={e => { if (e.target.value.length <= 2000) { setStyleText(e.target.value); setStyleSaved(false); } }}
-                    placeholder={"예시)\n- 모든 금액은 백만 원 단위로 표시해주세요.\n- 날짜는 YYYY년 M월 형식으로 표기합니다.\n- 10줄 이내 분량으로 자세하게 풀어서 설명해주세요."}
+                    placeholder={"예시)\n- 모든 금액은 백만 원 단위로 표시해주세요.\n- 소수점은 두 번째 자리에서 반올림해주세요.\n- 날짜는 YYYY년 M월 형식으로 표기합니다.\n- 10줄 이내 분량으로 자세하게 풀어서 설명해주세요."}
                     className="w-full h-[220px] px-4 py-3 text-[13px] border-[0.5px] border-[#e0e0e0] rounded-lg outline-none focus:border-[#534AB7] transition-colors resize-none leading-relaxed mb-2"
                   />
 
