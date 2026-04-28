@@ -322,7 +322,7 @@ export default function App() {
                   settingsTab === 'business' ? 'bg-[#EEEDFE] text-[#534AB7] font-medium' : 'text-[#555] hover:bg-[#f5f5f5]'
                 }`}
               >
-                비즈니스 맞춤 설정
+                비즈니스 공통 설정
               </button>
               <button
                 onClick={() => setSettingsTab('style')}
@@ -330,7 +330,7 @@ export default function App() {
                   settingsTab === 'style' ? 'bg-[#EEEDFE] text-[#534AB7] font-medium' : 'text-[#555] hover:bg-[#f5f5f5]'
                 }`}
               >
-                답변 스타일 설정
+                개인 맞춤 설정
               </button>
             </div>
 
@@ -338,11 +338,11 @@ export default function App() {
             <div className="flex-1 overflow-y-auto p-6 min-w-0">
 
               {settingsTab === 'business' ? (
-                /* 비즈니스 맞춤 설정 */
+                /* 비즈니스 공통 설정 */
                 <div className="max-w-[720px]">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-[16px] font-semibold text-[#1a1a1a]">비즈니스 맞춤 설정</h2>
-                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#f5f5f5] text-[#555]">기업 공통</span>
+                    <h2 className="text-[16px] font-semibold text-[#1a1a1a]">비즈니스 공통 설정</h2>
+                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#FEF3F2] text-[#B42318]">수정 권한 없음</span>
                   </div>
                   <p className="text-[13px] text-[#888780] mb-5">사내 도메인 용어와 계산식을 등록하여 더 정확한 답변을 제공합니다. 등록된 설정은 모든 사용자에게 동일하게 적용됩니다.</p>
 
@@ -586,11 +586,10 @@ export default function App() {
                   )}
                 </div>
               ) : (
-                /* 답변 스타일 설정 */
+                /* 개인 맞춤 설정 */
                 <div className="max-w-[600px]">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-[16px] font-semibold text-[#1a1a1a]">답변 스타일 설정</h2>
-                    <span className="text-[11px] px-[7px] py-[2px] rounded-[10px] bg-[#F5F4FE] text-[#534AB7]">개인 맞춤</span>
+                    <h2 className="text-[16px] font-semibold text-[#1a1a1a]">개인 맞춤 설정</h2>
                   </div>
                   <p className="text-[13px] text-[#888780] mb-5">개인이 선호하는 답변 방식과 형식을 설정합니다. 설정 내용은 본인 계정에만 적용되며, 관리자도 타 계정의 내용을 조회할 수 없어요.</p>
 
