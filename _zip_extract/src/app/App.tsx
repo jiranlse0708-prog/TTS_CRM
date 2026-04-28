@@ -315,7 +315,7 @@ export default function App() {
 
             {/* 서브 메뉴 */}
             <div className="w-[168px] border-r-[0.5px] border-[#e0e0e0] p-3 flex flex-col gap-1 flex-shrink-0">
-              <div className="text-[11px] text-[#aaa] px-2 py-1 mb-1">설정</div>
+              <div className="text-[13px] font-medium text-[#555] px-2 py-1 mb-1">설정</div>
               <button
                 onClick={() => { setSettingsTab('business'); setSearchQuery(''); setShowAddTerm(false); setShowAddFormula(false); setEditingTermId(null); setEditingFormulaId(null); }}
                 className={`text-left px-3 py-2 text-[13px] rounded-lg transition-colors ${
