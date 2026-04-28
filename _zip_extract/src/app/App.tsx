@@ -348,14 +348,14 @@ export default function App() {
         <div className="w-[200px] border-r-[0.5px] border-[#e0e0e0] p-4 flex flex-col gap-3 flex-shrink-0">
           <button
             onClick={() => { setMessages([]); setCurrentView('chat'); }}
-            className="w-full text-left px-3 py-2 text-[13px] rounded-lg border-[0.5px] border-[#e0e0e0] bg-white hover:bg-[#f5f5f5] transition-colors flex items-center gap-2"
+            className="w-full text-left px-2 py-1.5 text-[13px] rounded-lg hover:bg-[#f5f5f5] transition-colors flex items-center gap-2 text-[#555]"
           >
             <Plus size={14} />
             <span>새 채팅</span>
           </button>
           <button
             onClick={() => { setChatSearchQuery(''); setShowSearchModal(true); }}
-            className="w-full text-left px-3 py-2 text-[13px] rounded-lg border-[0.5px] border-[#e0e0e0] bg-white hover:bg-[#f5f5f5] text-[#555] transition-colors flex items-center gap-2"
+            className="w-full text-left px-2 py-1.5 text-[13px] rounded-lg hover:bg-[#f5f5f5] transition-colors flex items-center gap-2 text-[#555]"
           >
             <Search size={14} />
             <span>검색</span>
