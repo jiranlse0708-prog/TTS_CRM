@@ -669,10 +669,10 @@ export default function App() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="w-full max-w-[560px]">
-                  <div className="border-[0.5px] border-[#ddd] rounded-xl px-4 py-3 flex items-center gap-2 focus-within:border-[#534AB7] transition-colors">
+                  <div className="border border-[#ddd] rounded-2xl px-5 py-4 flex items-center gap-2 focus-within:border-[#534AB7] shadow-md transition-colors">
                     <input type="text" value={message} onChange={e => setMessage(e.target.value)}
                       placeholder="궁금한 데이터를 물어보세요."
-                      className="flex-1 border-none outline-none text-[13px] bg-transparent text-[#1a1a1a] placeholder:text-[#aaa]" />
+                      className="flex-1 border-none outline-none text-[14px] bg-transparent text-[#1a1a1a] placeholder:text-[#bbb]" />
                     <button type="submit" className="w-7 h-7 rounded-full bg-[#534AB7] hover:bg-[#4239a0] transition-colors flex items-center justify-center flex-shrink-0">
                       <ArrowRight size={14} className="text-white" />
                     </button>
