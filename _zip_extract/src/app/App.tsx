@@ -1,6 +1,12 @@
-import { useState } from 'react';
-import { Plus, User, ArrowRight, ChevronDown, Download, Settings, Search, Pencil, Trash2, Check, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Plus, User, ArrowRight, ChevronDown, Download, Settings, Search, Pencil, Trash2, Check, X, MoreHorizontal, Pin } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
+
+interface ChatItem {
+  id: number;
+  title: string;
+  pinned: boolean;
+}
 
 interface Message {
   type: 'user' | 'ai';
@@ -86,12 +92,18 @@ export default function App() {
     [...allRecommendedQuestions].sort(() => Math.random() - 0.5).slice(0, 4)
   );
 
-  const chatHistory = [
-    '지난 달 상품별 및 지역별...',
-    '제품별 매출 비중 분석',
-    '영업 담당자별 계약 실적',
-    '클라우드 제품 판매 추이',
-  ];
+  const [chatList, setChatList] = useState<ChatItem[]>([
+    { id: 1, title: '지난 달 상품별 및 지역별', pinned: false },
+    { id: 2, title: '제품별 매출 비중 분석', pinned: false },
+    { id: 3, title: '영업 담당자별 계약 실적', pinned: false },
+    { id: 4, title: '클라우드 제품 판매 추이', pinned: false },
+  ]);
+  const [hoveredChatId, setHoveredChatId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [editingChatId, setEditingChatId] = useState<number | null>(null);
+  const [editingChatTitle, setEditingChatTitle] = useState('');
+  const [deletingChatId, setDeletingChatId] = useState<number | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const salesData = [
     ['SO-20260211-02','2026-02-11','판매','PC필터','CUST-00187','태성시스템'],
@@ -157,6 +169,12 @@ export default function App() {
           { type: 'ai', content: '지난달 제품별 판매 비중이에요. PCFILTER가 35%로 가장 높았어요.', hasDataTable: false, hasDataChart: true }
         ]);
       }
+      // 첫 메시지 전송 시 제목 자동 생성 (15자 제한)
+      if (messages.length === 0) {
+        const newTitle = message.trim().slice(0, 15);
+        const newChat: ChatItem = { id: Date.now(), title: newTitle, pinned: false };
+        setChatList(prev => [newChat, ...prev]);
+      }
       setMessage('');
       setCurrentPage(1);
       setShowSuggestions(false);
@@ -167,6 +185,43 @@ export default function App() {
     setMessage(suggestion);
     setShowSuggestions(false);
   };
+
+  // ── 채팅 관리 핸들러 ──────────────────────────────────
+  const handleTogglePin = (id: number) => {
+    setChatList(prev => prev.map(c => c.id === id ? { ...c, pinned: !c.pinned } : c));
+    setOpenMenuId(null);
+  };
+
+  const handleStartRename = (chat: ChatItem) => {
+    setEditingChatId(chat.id);
+    setEditingChatTitle(chat.title);
+    setOpenMenuId(null);
+  };
+
+  const handleSaveRename = (id: number) => {
+    if (editingChatTitle.trim()) {
+      setChatList(prev => prev.map(c => c.id === id ? { ...c, title: editingChatTitle.trim().slice(0, 15) } : c));
+    }
+    setEditingChatId(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deletingChatId !== null) {
+      setChatList(prev => prev.filter(c => c.id !== deletingChatId));
+      setDeletingChatId(null);
+    }
+  };
+
+  // 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleRecommendedClick = (query: string) => {
     setMessage(query);
@@ -270,6 +325,30 @@ export default function App() {
   // ── 렌더 ──────────────────────────────────────────────
   return (
     <div className="h-screen p-4 bg-[#f5f5f5] relative" style={{ fontFamily: "'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif" }}>
+      {/* ── 삭제 확인 모달 ── */}
+      {deletingChatId !== null && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.35)' }}>
+          <div className="w-[360px] bg-white rounded-2xl shadow-2xl p-6">
+            <h3 className="text-[15px] font-semibold text-[#1a1a1a] mb-2">대화를 삭제하시겠어요?</h3>
+            <p className="text-[13px] text-[#888780] mb-6">삭제된 대화는 복구할 수 없습니다.</p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setDeletingChatId(null)}
+                className="px-4 py-2 text-[13px] rounded-lg border border-[#e0e0e0] hover:bg-[#f5f5f5] transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 text-[13px] rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── 검색 팝업 ── */}
       {showSearchModal && (
         <div
@@ -363,21 +442,99 @@ export default function App() {
 
           <div className="text-[11px] text-[#aaa] px-1 mt-3">채팅 목록</div>
 
-          <div className="flex flex-col gap-1">
-            {chatHistory.map((chat, index) => (
+          <div className="flex flex-col gap-0.5 overflow-y-auto flex-1 min-h-0">
+            {/* 고정 영역 */}
+            {chatList.filter(c => c.pinned).map(chat => (
               <div
-                key={index}
-                onClick={() => setCurrentView('chat')}
-                className={`text-[12px] text-[#555] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#f5f5f5] transition-colors ${
-                  index === 0 && messages.length > 0 && currentView === 'chat' ? 'bg-[#f5f5f5]' : ''
-                }`}
+                key={chat.id}
+                className="relative group"
+                onMouseEnter={() => setHoveredChatId(chat.id)}
+                onMouseLeave={() => { setHoveredChatId(null); }}
               >
-                {chat}
+                {editingChatId === chat.id ? (
+                  <input
+                    autoFocus
+                    value={editingChatTitle}
+                    onChange={e => setEditingChatTitle(e.target.value.slice(0, 15))}
+                    onBlur={() => handleSaveRename(chat.id)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleSaveRename(chat.id); if (e.key === 'Escape') setEditingChatId(null); }}
+                    className="w-full px-2 py-1 text-[12px] rounded-lg border border-[#534AB7] outline-none"
+                  />
+                ) : (
+                  <div
+                    onClick={() => setCurrentView('chat')}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg cursor-pointer hover:bg-[#f5f5f5] transition-colors"
+                  >
+                    <Pin size={10} className="text-[#534AB7] flex-shrink-0" />
+                    <span className="text-[12px] text-[#555] flex-1 truncate">{chat.title}</span>
+                    {hoveredChatId === chat.id && (
+                      <button
+                        onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === chat.id ? null : chat.id); }}
+                        className="flex-shrink-0 p-0.5 rounded hover:bg-[#e0e0e0] transition-colors"
+                      >
+                        <MoreHorizontal size={13} className="text-[#aaa]" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                {openMenuId === chat.id && (
+                  <div ref={menuRef} className="absolute right-0 top-7 z-10 w-[120px] bg-white border border-[#e0e0e0] rounded-lg shadow-md py-1 text-[12px]">
+                    <button onClick={() => handleTogglePin(chat.id)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pin size={12} />고정 해제</button>
+                    <button onClick={() => handleStartRename(chat)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pencil size={12} />이름 변경</button>
+                    <button onClick={() => { setDeletingChatId(chat.id); setOpenMenuId(null); }} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] text-red-500 flex items-center gap-2"><Trash2 size={12} />삭제</button>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* 구분선 */}
+            {chatList.some(c => c.pinned) && chatList.some(c => !c.pinned) && (
+              <div className="border-t border-[#e0e0e0] my-1" />
+            )}
+
+            {/* 일반 영역 */}
+            {chatList.filter(c => !c.pinned).map(chat => (
+              <div
+                key={chat.id}
+                className="relative group"
+                onMouseEnter={() => setHoveredChatId(chat.id)}
+                onMouseLeave={() => setHoveredChatId(null)}
+              >
+                {editingChatId === chat.id ? (
+                  <input
+                    autoFocus
+                    value={editingChatTitle}
+                    onChange={e => setEditingChatTitle(e.target.value.slice(0, 15))}
+                    onBlur={() => handleSaveRename(chat.id)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleSaveRename(chat.id); if (e.key === 'Escape') setEditingChatId(null); }}
+                    className="w-full px-2 py-1 text-[12px] rounded-lg border border-[#534AB7] outline-none"
+                  />
+                ) : (
+                  <div
+                    onClick={() => setCurrentView('chat')}
+                    className="flex items-center px-2 py-1 rounded-lg cursor-pointer hover:bg-[#f5f5f5] transition-colors"
+                  >
+                    <span className="text-[12px] text-[#555] flex-1 truncate">{chat.title}</span>
+                    {hoveredChatId === chat.id && (
+                      <button
+                        onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === chat.id ? null : chat.id); }}
+                        className="flex-shrink-0 p-0.5 rounded hover:bg-[#e0e0e0] transition-colors"
+                      >
+                        <MoreHorizontal size={13} className="text-[#aaa]" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                {openMenuId === chat.id && (
+                  <div ref={menuRef} className="absolute right-0 top-7 z-10 w-[120px] bg-white border border-[#e0e0e0] rounded-lg shadow-md py-1 text-[12px]">
+                    <button onClick={() => handleTogglePin(chat.id)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pin size={12} />고정</button>
+                    <button onClick={() => handleStartRename(chat)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pencil size={12} />이름 변경</button>
+                    <button onClick={() => { setDeletingChatId(chat.id); setOpenMenuId(null); }} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] text-red-500 flex items-center gap-2"><Trash2 size={12} />삭제</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
-
-          <div className="flex-1" />
 
           {/* 맞춤 설정 버튼 */}
           <button
