@@ -45,22 +45,49 @@ const DISLIKE_REASONS = [
   '기타',
 ];
 
+// URL 파라미터로 초기 화면 상태 결정
+function getInitialState() {
+  const params = new URLSearchParams(window.location.search);
+  const screen = params.get('screen');
+  const tableMsg: Message = { type: 'user', content: '지난 한달 간 PC필터 판매된 리스트 좀 보여줘' };
+  const tableReply: Message = { type: 'ai', content: '지난 한달 간 PC필터 판매 수는 총 86건이에요.', hasDataTable: true };
+  const chartMsg: Message = { type: 'user', content: '지난달 제품별 판매 비중 차트로 보여줘' };
+  const chartReply: Message = { type: 'ai', content: '지난달 제품별 판매 비중이에요. PCFILTER가 35%로 가장 높았어요.', hasDataChart: true };
+  const zeroMsg: Message = { type: 'user', content: '1988년 1월 PC필터 판매 리스트' };
+  const zeroReply: Message = { type: 'ai', content: '데이터를 조회해 봤는데, 조건에 해당하는 결과가 없어요.', hasDataTable: true, hasZeroResults: true };
+  const unrelMsg: Message = { type: 'user', content: '오늘 날씨 어때?' };
+  const unrelReply: Message = { type: 'ai', content: '저는 CRM에 있는 데이터와 관련된 질문을 전문으로 해요.\n해당 내용은 CRM 데이터에서 확인이 어려워요.\n\n고객사, 영업, 판매, 계약, 라이선스 등 궁금한 데이터가 있으시면 언제든 편하게 물어봐주세요 😊' };
+
+  switch (screen) {
+    case 'table':       return { messages: [tableMsg, tableReply], view: 'chat' as const, settingsTab: 'business' as const, businessSubTab: 'terms' as const };
+    case 'chart':       return { messages: [chartMsg, chartReply], view: 'chat' as const, settingsTab: 'business' as const, businessSubTab: 'terms' as const };
+    case 'zero':        return { messages: [zeroMsg, zeroReply],   view: 'chat' as const, settingsTab: 'business' as const, businessSubTab: 'terms' as const };
+    case 'unrelated':   return { messages: [unrelMsg, unrelReply], view: 'chat' as const, settingsTab: 'business' as const, businessSubTab: 'terms' as const };
+    case 'settings-terms':    return { messages: [], view: 'settings' as const, settingsTab: 'business' as const, businessSubTab: 'terms' as const };
+    case 'settings-formula':  return { messages: [], view: 'settings' as const, settingsTab: 'business' as const, businessSubTab: 'formulas' as const };
+    case 'settings-style':    return { messages: [], view: 'settings' as const, settingsTab: 'style' as const, businessSubTab: 'terms' as const };
+    default:            return { messages: [], view: 'chat' as const, settingsTab: 'business' as const, businessSubTab: 'terms' as const };
+  }
+}
+
 export default function App() {
+  const _init = getInitialState();
+
   // ── 채팅 상태 ──────────────────────────────────────────
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(_init.messages);
   const [showSql, setShowSql] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // ── 화면 전환 ──────────────────────────────────────────
-  const [currentView, setCurrentView] = useState<'chat' | 'settings'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'settings'>(_init.view);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState('');
 
   // ── 맞춤 설정 상태 ────────────────────────────────────
-  const [settingsTab, setSettingsTab] = useState<'business' | 'style'>('business');
-  const [businessSubTab, setBusinessSubTab] = useState<'terms' | 'formulas'>('terms');
+  const [settingsTab, setSettingsTab] = useState<'business' | 'style'>(_init.settingsTab);
+  const [businessSubTab, setBusinessSubTab] = useState<'terms' | 'formulas'>(_init.businessSubTab);
   const [searchQuery, setSearchQuery] = useState('');
   const isAdmin = true; // 프로토타입: 현재 사용자를 관리자로 가정
 
