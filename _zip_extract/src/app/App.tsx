@@ -1282,38 +1282,56 @@ export default function App() {
                         {(() => {
                           const fb = feedbackMap[idx] || { like: false, dislike: false, showReasons: false, reasons: [], otherText: '' };
                           return (
-                            <div className="flex flex-col gap-2 mt-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[11px] text-[#aaa]">답변이 도움이 됐나요?</span>
-                                <button onClick={() => handleLike(idx)}
-                                  className={`p-1 rounded transition-colors ${fb.like ? 'text-[#534AB7]' : 'text-[#ccc] hover:text-[#534AB7]'}`}>
-                                  <ThumbsUp size={13} />
-                                </button>
-                                <button onClick={() => handleDislike(idx)}
-                                  className={`p-1 rounded transition-colors ${fb.dislike ? 'text-red-400' : 'text-[#ccc] hover:text-red-400'}`}>
-                                  <ThumbsDown size={13} />
-                                </button>
-                              </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[11px] text-[#555] font-medium">답변이 도움이 됐나요?</span>
+                              <button onClick={() => handleLike(idx)}
+                                className={`p-1 rounded transition-colors ${fb.like ? 'text-[#534AB7]' : 'text-[#ccc] hover:text-[#534AB7]'}`}>
+                                <ThumbsUp size={13} />
+                              </button>
+                              <button onClick={() => handleDislike(idx)}
+                                className={`p-1 rounded transition-colors ${fb.dislike ? 'text-red-400' : 'text-[#ccc] hover:text-red-400'}`}>
+                                <ThumbsDown size={13} />
+                              </button>
+
+                              {/* 싫어요 사유 팝업 */}
                               {fb.showReasons && (
-                                <div className="border-[0.5px] border-[#e0e0e0] rounded-lg p-3 flex flex-col gap-2 bg-[#fafafa]">
-                                  <p className="text-[11px] text-[#888780]">어떤 점이 불편하셨나요? (복수 선택 가능)</p>
-                                  <div className="flex flex-col gap-1.5">
-                                    {DISLIKE_REASONS.map(reason => (
-                                      <label key={reason} className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox"
-                                          checked={fb.reasons.includes(reason)}
-                                          onChange={() => handleToggleReason(idx, reason)}
-                                          className="w-3 h-3 accent-[#534AB7]" />
-                                        <span className="text-[12px] text-[#555]">{reason}</span>
-                                      </label>
-                                    ))}
-                                    {fb.reasons.includes('기타') && (
-                                      <input type="text"
-                                        value={fb.otherText}
-                                        onChange={e => handleOtherText(idx, e.target.value)}
-                                        placeholder="직접 입력해주세요"
-                                        className="ml-5 px-2 py-1 text-[12px] border-[0.5px] border-[#e0e0e0] rounded outline-none focus:border-[#534AB7] transition-colors" />
-                                    )}
+                                <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ fontFamily: "'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif" }}>
+                                  <div className="absolute inset-0 bg-black/30" onClick={() => setFeedbackMap(prev => ({ ...prev, [idx]: { ...fb, showReasons: false } }))} />
+                                  <div className="relative bg-white rounded-xl shadow-xl p-5 w-[320px] flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-[14px] font-semibold text-[#1a1a1a]">어떤 점이 불편하셨나요?</p>
+                                      <button onClick={() => setFeedbackMap(prev => ({ ...prev, [idx]: { ...fb, showReasons: false } }))} className="text-[#aaa] hover:text-[#555] transition-colors">
+                                        <X size={16} />
+                                      </button>
+                                    </div>
+                                    <p className="text-[12px] text-[#888780] -mt-2">복수 선택 가능</p>
+                                    <div className="flex flex-col gap-2.5">
+                                      {DISLIKE_REASONS.map(reason => (
+                                        <label key={reason} className="flex items-center gap-2.5 cursor-pointer">
+                                          <input type="checkbox"
+                                            checked={fb.reasons.includes(reason)}
+                                            onChange={() => handleToggleReason(idx, reason)}
+                                            className="w-3.5 h-3.5 accent-[#534AB7]" />
+                                          <span className="text-[13px] text-[#333]">{reason}</span>
+                                        </label>
+                                      ))}
+                                      {fb.reasons.includes('기타') && (
+                                        <div className="ml-6">
+                                          <textarea
+                                            value={fb.otherText}
+                                            onChange={e => handleOtherText(idx, e.target.value)}
+                                            placeholder="직접 입력해주세요"
+                                            rows={3}
+                                            className="w-full px-2.5 py-1.5 text-[12px] border-[0.5px] border-[#e0e0e0] rounded-lg outline-none focus:border-[#534AB7] transition-colors resize-none"
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <button
+                                      onClick={() => setFeedbackMap(prev => ({ ...prev, [idx]: { ...fb, showReasons: false } }))}
+                                      className="w-full py-2 text-[13px] font-medium bg-[#534AB7] text-white rounded-lg hover:bg-[#4239a0] transition-colors mt-1">
+                                      확인
+                                    </button>
                                   </div>
                                 </div>
                               )}
