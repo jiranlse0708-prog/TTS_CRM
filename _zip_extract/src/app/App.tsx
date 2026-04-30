@@ -369,6 +369,23 @@ export default function App() {
     });
   };
 
+  // X·오버레이: 무조건 싫어요 취소
+  const handleCancelDislike = (idx: number, fb: FeedbackState) => {
+    setFeedbackMap(prev => ({
+      ...prev,
+      [idx]: { ...fb, showReasons: false, dislike: false, reasons: [], otherText: '' }
+    }));
+  };
+
+  // 확인: 사유 있으면 싫어요 반영, 없으면 취소
+  const handleConfirmDislike = (idx: number, fb: FeedbackState) => {
+    const hasReason = fb.reasons.filter(r => r !== '기타').length > 0 || (fb.reasons.includes('기타') && fb.otherText.trim());
+    setFeedbackMap(prev => ({
+      ...prev,
+      [idx]: { ...fb, showReasons: false, dislike: !!hasReason, reasons: hasReason ? fb.reasons : [], otherText: hasReason ? fb.otherText : '' }
+    }));
+  };
+
   // ── 가공 핸들러 ───────────────────────────────────────
   const handleSort = (colIdx: number) => {
     if (sortColumn === colIdx) {
@@ -1206,7 +1223,7 @@ export default function App() {
                               <div className="px-3.5 py-2 border-b-[0.5px] border-[#e0e0e0] flex items-center justify-between">
                                 <span className="text-[12px] text-[#555]">차트</span>
                                 <div className="flex items-center gap-1">
-                                  {([['pie','파이'],['bar-v','세로 막대'],['bar-h','가로 막대'],['line','라인']] as const).map(([type, label]) => (
+                                  {([['pie','원형'],['bar-v','세로 막대'],['bar-h','가로 막대'],['line','꺾은선']] as const).map(([type, label]) => (
                                     <button key={type} onClick={() => setChartType(type)}
                                       className={`text-[11px] px-2 py-0.5 rounded border-[0.5px] transition-colors ${
                                         chartType === type
@@ -1296,11 +1313,11 @@ export default function App() {
                               {/* 싫어요 사유 팝업 */}
                               {fb.showReasons && (
                                 <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ fontFamily: "'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif" }}>
-                                  <div className="absolute inset-0 bg-black/30" onClick={() => setFeedbackMap(prev => ({ ...prev, [idx]: { ...fb, showReasons: false } }))} />
+                                  <div className="absolute inset-0 bg-black/30" onClick={() => handleCancelDislike(idx, fb)} />
                                   <div className="relative bg-white rounded-xl shadow-xl p-5 w-[320px] flex flex-col gap-4">
                                     <div className="flex items-center justify-between">
                                       <p className="text-[14px] font-semibold text-[#1a1a1a]">어떤 점이 불편하셨나요?</p>
-                                      <button onClick={() => setFeedbackMap(prev => ({ ...prev, [idx]: { ...fb, showReasons: false } }))} className="text-[#aaa] hover:text-[#555] transition-colors">
+                                      <button onClick={() => handleCancelDislike(idx, fb)} className="text-[#aaa] hover:text-[#555] transition-colors">
                                         <X size={16} />
                                       </button>
                                     </div>
@@ -1328,7 +1345,7 @@ export default function App() {
                                       )}
                                     </div>
                                     <button
-                                      onClick={() => setFeedbackMap(prev => ({ ...prev, [idx]: { ...fb, showReasons: false } }))}
+                                      onClick={() => handleConfirmDislike(idx, fb)}
                                       className="w-full py-2 text-[13px] font-medium bg-[#534AB7] text-white rounded-lg hover:bg-[#4239a0] transition-colors mt-1">
                                       확인
                                     </button>
