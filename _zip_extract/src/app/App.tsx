@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, User, ArrowRight, ChevronDown, Download, Settings, Search, Pencil, Trash2, Check, X, MoreHorizontal, Pin } from 'lucide-react';
-import { PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { Plus, User, ArrowRight, ChevronDown, Download, Settings, Search, Pencil, Trash2, Check, X, MoreHorizontal, Pin, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, BarChart, Bar, LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
 interface ChatItem {
   id: number;
@@ -28,6 +28,22 @@ interface Formula {
   name: string;
   formula: string;
 }
+
+interface FeedbackState {
+  like: boolean;
+  dislike: boolean;
+  showReasons: boolean;
+  reasons: string[];
+  otherText: string;
+}
+
+const DISLIKE_REASONS = [
+  '결과 데이터가 부정확해요',
+  '질문 의도와 다른 답변이에요',
+  '답변 설명이 부족하거나 이해하기 어려워요',
+  '시각화(표/차트)가 부적절해요',
+  '기타',
+];
 
 export default function App() {
   // ── 채팅 상태 ──────────────────────────────────────────
@@ -104,6 +120,18 @@ export default function App() {
   const [editingChatTitle, setEditingChatTitle] = useState('');
   const [deletingChatId, setDeletingChatId] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // ── 응답 만족도 피드백 ────────────────────────────────
+  const [feedbackMap, setFeedbackMap] = useState<Record<number, FeedbackState>>({});
+
+  // ── 시각화/테이블 가공 ────────────────────────────────
+  const [sortColumn, setSortColumn] = useState<number | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [tableFilter, setTableFilter] = useState('');
+  const [tableFilterInput, setTableFilterInput] = useState('');
+  const [chartType, setChartType] = useState<'pie' | 'line' | 'bar-v' | 'bar-h'>('pie');
+  const [statsSortColumn, setStatsSortColumn] = useState<number | null>(null);
+  const [statsSortDir, setStatsSortDir] = useState<'asc' | 'desc'>('asc');
 
   const salesData = [
     ['SO-20260211-02','2026-02-11','판매','PC필터','CUST-00187','태성시스템'],
@@ -313,6 +341,69 @@ export default function App() {
     setTimeout(() => setStyleSaved(false), 2000);
   };
 
+  // ── 피드백 핸들러 ─────────────────────────────────────
+  const handleLike = (idx: number) => {
+    setFeedbackMap(prev => {
+      const cur = prev[idx] || { like: false, dislike: false, showReasons: false, reasons: [], otherText: '' };
+      return { ...prev, [idx]: { ...cur, like: !cur.like, dislike: false, showReasons: false, reasons: [], otherText: '' } };
+    });
+  };
+  const handleDislike = (idx: number) => {
+    setFeedbackMap(prev => {
+      const cur = prev[idx] || { like: false, dislike: false, showReasons: false, reasons: [], otherText: '' };
+      const newDislike = !cur.dislike;
+      return { ...prev, [idx]: { ...cur, dislike: newDislike, like: false, showReasons: newDislike, reasons: newDislike ? cur.reasons : [], otherText: newDislike ? cur.otherText : '' } };
+    });
+  };
+  const handleToggleReason = (idx: number, reason: string) => {
+    setFeedbackMap(prev => {
+      const cur = prev[idx] || { like: false, dislike: false, showReasons: false, reasons: [], otherText: '' };
+      const reasons = cur.reasons.includes(reason) ? cur.reasons.filter(r => r !== reason) : [...cur.reasons, reason];
+      return { ...prev, [idx]: { ...cur, reasons } };
+    });
+  };
+  const handleOtherText = (idx: number, text: string) => {
+    setFeedbackMap(prev => {
+      const cur = prev[idx] || { like: false, dislike: false, showReasons: false, reasons: [], otherText: '' };
+      return { ...prev, [idx]: { ...cur, otherText: text } };
+    });
+  };
+
+  // ── 가공 핸들러 ───────────────────────────────────────
+  const handleSort = (colIdx: number) => {
+    if (sortColumn === colIdx) {
+      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(colIdx);
+      setSortDir('asc');
+    }
+  };
+  const handleReset = () => {
+    setSortColumn(null);
+    setSortDir('asc');
+    setTableFilter('');
+    setTableFilterInput('');
+    setChartType('pie');
+    setStatsSortColumn(null);
+    setStatsSortDir('asc');
+  };
+
+  const applyTableFilter = () => {
+    setTableFilter(tableFilterInput);
+    setCurrentPage(1);
+  };
+
+  const handleStatsSort = (colIdx: number) => {
+    if (statsSortColumn === colIdx) {
+      setStatsSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setStatsSortColumn(colIdx);
+      setStatsSortDir('asc');
+    }
+  };
+
+  const colHeaders = ['order_id', 'sale_date', 'sale_type', 'product_name', 'customer_id', 'customer_name'];
+
   const openSettings = () => {
     setCurrentView('settings');
     setSearchQuery('');
@@ -478,10 +569,10 @@ export default function App() {
                   </div>
                 )}
                 {openMenuId === chat.id && (
-                  <div ref={menuRef} className="absolute right-0 top-7 z-10 w-[120px] bg-white border border-[#e0e0e0] rounded-lg shadow-md py-1 text-[12px]">
-                    <button onClick={() => handleTogglePin(chat.id)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pin size={12} />고정 해제</button>
-                    <button onClick={() => handleStartRename(chat)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pencil size={12} />이름 변경</button>
-                    <button onClick={() => { setDeletingChatId(chat.id); setOpenMenuId(null); }} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] text-red-500 flex items-center gap-2"><Trash2 size={12} />삭제</button>
+                  <div ref={menuRef} className="absolute right-0 top-7 z-10 w-[110px] bg-white border border-[#e0e0e0] rounded-md shadow-sm py-0.5 text-[11px] font-normal text-[#555]">
+                    <button onClick={() => handleTogglePin(chat.id)} className="w-full text-left px-2.5 py-0.5 hover:bg-[#f5f5f5] text-[#555] flex items-center gap-1.5"><Pin size={12} />고정 해제</button>
+                    <button onClick={() => handleStartRename(chat)} className="w-full text-left px-2.5 py-0.5 hover:bg-[#f5f5f5] text-[#555] flex items-center gap-1.5"><Pencil size={12} />이름 변경</button>
+                    <button onClick={() => { setDeletingChatId(chat.id); setOpenMenuId(null); }} className="w-full text-left px-2.5 py-0.5 hover:bg-[#f5f5f5] text-red-400 flex items-center gap-1.5"><Trash2 size={12} />삭제</button>
                   </div>
                 )}
               </div>
@@ -526,10 +617,10 @@ export default function App() {
                   </div>
                 )}
                 {openMenuId === chat.id && (
-                  <div ref={menuRef} className="absolute right-0 top-7 z-10 w-[120px] bg-white border border-[#e0e0e0] rounded-lg shadow-md py-1 text-[12px]">
-                    <button onClick={() => handleTogglePin(chat.id)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pin size={12} />고정</button>
-                    <button onClick={() => handleStartRename(chat)} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] flex items-center gap-2"><Pencil size={12} />이름 변경</button>
-                    <button onClick={() => { setDeletingChatId(chat.id); setOpenMenuId(null); }} className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f5] text-red-500 flex items-center gap-2"><Trash2 size={12} />삭제</button>
+                  <div ref={menuRef} className="absolute right-0 top-7 z-10 w-[110px] bg-white border border-[#e0e0e0] rounded-md shadow-sm py-0.5 text-[11px] font-normal text-[#555]">
+                    <button onClick={() => handleTogglePin(chat.id)} className="w-full text-left px-2.5 py-0.5 hover:bg-[#f5f5f5] text-[#555] flex items-center gap-1.5"><Pin size={12} />고정</button>
+                    <button onClick={() => handleStartRename(chat)} className="w-full text-left px-2.5 py-0.5 hover:bg-[#f5f5f5] text-[#555] flex items-center gap-1.5"><Pencil size={12} />이름 변경</button>
+                    <button onClick={() => { setDeletingChatId(chat.id); setOpenMenuId(null); }} className="w-full text-left px-2.5 py-0.5 hover:bg-[#f5f5f5] text-red-400 flex items-center gap-1.5"><Trash2 size={12} />삭제</button>
                   </div>
                 )}
               </div>
@@ -911,10 +1002,16 @@ export default function App() {
 
                 <form onSubmit={handleSubmit} className="w-full max-w-[560px]">
                   <div className="border border-[#ddd] rounded-2xl px-5 py-4 flex items-center gap-2 focus-within:border-[#534AB7] shadow-md transition-colors">
-                    <input type="text" value={message} onChange={e => setMessage(e.target.value)}
+                    <textarea
+                      rows={1}
+                      value={message}
+                      onChange={e => { setMessage(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; }}
+                      onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e as unknown as React.FormEvent); } }}
                       placeholder="궁금한 데이터를 물어보세요."
-                      className="flex-1 border-none outline-none text-[14px] bg-transparent text-[#1a1a1a] placeholder:text-[#bbb]" />
-                    <button type="submit" className="w-7 h-7 rounded-full bg-[#534AB7] hover:bg-[#4239a0] transition-colors flex items-center justify-center flex-shrink-0">
+                      className="flex-1 border-none outline-none text-[14px] bg-transparent text-[#1a1a1a] placeholder:text-[#bbb] resize-none overflow-hidden leading-relaxed"
+                      style={{ height: '24px', maxHeight: '120px' }}
+                    />
+                    <button type="submit" className="w-7 h-7 rounded-full bg-[#534AB7] hover:bg-[#4239a0] transition-colors flex items-center justify-center flex-shrink-0 self-end">
                       <ArrowRight size={14} className="text-white" />
                     </button>
                   </div>
@@ -980,24 +1077,65 @@ export default function App() {
                           ) : msg.content}
                         </div>
 
-                        {msg.hasDataTable && !msg.hasZeroResults && (
+                        {msg.hasDataTable && !msg.hasZeroResults && (() => {
+                          const filtered = salesData.filter(row =>
+                            !tableFilter || row.some(cell => cell.toLowerCase().includes(tableFilter.toLowerCase()))
+                          );
+                          const sorted = sortColumn !== null
+                            ? [...filtered].sort((a, b) => {
+                                const cmp = a[sortColumn].localeCompare(b[sortColumn], 'ko');
+                                return sortDir === 'asc' ? cmp : -cmp;
+                              })
+                            : filtered;
+                          return (
                           <div className="border-[0.5px] border-[#e0e0e0] rounded-lg overflow-hidden">
-                            <div className="px-3.5 py-2 flex items-center justify-end border-b-[0.5px] border-[#e0e0e0]">
-                              <button className="text-[11px] px-2.5 py-1 flex items-center gap-1 border-[0.5px] border-[#e0e0e0] rounded-md bg-white hover:bg-[#f5f5f5] transition-colors">
-                                <Download size={12} className="text-[#555]" />CSV 다운로드
+                            {/* 툴바 */}
+                            <div className="px-3.5 py-2 flex items-center gap-2 border-b-[0.5px] border-[#e0e0e0]">
+                              <div className="flex items-center flex-1 max-w-[220px] border-[0.5px] border-[#e0e0e0] rounded focus-within:border-[#534AB7] transition-colors bg-white">
+                                <input
+                                  type="text"
+                                  value={tableFilterInput}
+                                  onChange={e => setTableFilterInput(e.target.value)}
+                                  onKeyDown={e => { if (e.key === 'Enter') applyTableFilter(); }}
+                                  placeholder="키워드를 입력하세요."
+                                  className="flex-1 px-2.5 py-1 text-[11px] bg-transparent outline-none"
+                                />
+                                <button
+                                  onClick={applyTableFilter}
+                                  className="px-2 py-1 text-[#aaa] hover:text-[#534AB7] transition-colors"
+                                >
+                                  <Search size={12} />
+                                </button>
+                              </div>
+                              <button onClick={handleReset} className="p-1 text-[#ccc] hover:text-[#534AB7] transition-colors">
+                                <RotateCcw size={11} />
+                              </button>
+                              <button className="text-[11px] px-2.5 py-1 flex items-center gap-1 border-[0.5px] border-[#e0e0e0] rounded bg-white hover:bg-[#f5f5f5] transition-colors ml-auto">
+                                <Download size={11} className="text-[#555]" />CSV 다운로드
                               </button>
                             </div>
                             <div className="overflow-x-auto">
                               <table className="w-full border-collapse text-[12px]">
                                 <thead>
                                   <tr className="bg-[#f5f5f5]">
-                                    {['order_id','sale_date','sale_type','product_name','customer_id','customer_name'].map(h => (
-                                      <th key={h} className="px-3 py-2 text-left font-medium border-b-[0.5px] border-[#e0e0e0] whitespace-nowrap">{h}</th>
+                                    {colHeaders.map((h, colIdx) => (
+                                      <th key={h}
+                                        onClick={() => handleSort(colIdx)}
+                                        className="px-3 py-2 text-left font-medium border-b-[0.5px] border-[#e0e0e0] whitespace-nowrap cursor-pointer hover:bg-[#eeeeee] select-none">
+                                        <span className="flex items-center gap-1">
+                                          {h}
+                                          <span className="text-[10px] text-[#ccc]">
+                                            {sortColumn === colIdx ? (sortDir === 'asc' ? '▲' : '▼') : '↕'}
+                                          </span>
+                                        </span>
+                                      </th>
                                     ))}
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {salesData.map((row, i) => (
+                                  {sorted.length === 0 ? (
+                                    <tr><td colSpan={6} className="px-3 py-6 text-center text-[12px] text-[#aaa]">검색 결과가 없어요.</td></tr>
+                                  ) : sorted.map((row, i) => (
                                     <tr key={i} className={i % 2 === 1 ? 'bg-[#f9f9f9]' : ''}>
                                       {row.map((cell, j) => (
                                         <td key={j} className="px-3 py-1.5 border-b-[0.5px] border-[#e0e0e0]">{cell}</td>
@@ -1008,60 +1146,180 @@ export default function App() {
                               </table>
                             </div>
                             <div className="px-3.5 py-2 border-t-[0.5px] border-[#e0e0e0] flex items-center justify-between">
-                              <span className="text-[11px] text-[#aaa]">총 86건 · 1페이지 당 10건</span>
+                              <span className="text-[11px] text-[#aaa]">총 {sorted.length}건 · 1페이지 당 10건</span>
                               {renderPagination()}
                             </div>
                           </div>
-                        )}
+                          );
+                        })()}
 
                         {msg.hasDataChart && (
                           <>
-                            <div className="border-[0.5px] border-[#e0e0e0] rounded-lg overflow-hidden">
-                              <div className="px-3.5 py-2 border-b-[0.5px] border-[#e0e0e0] text-[12px] text-[#555]">통계 표</div>
-                              <table className="w-full border-collapse text-[12px]">
-                                <thead>
-                                  <tr className="bg-[#f5f5f5]">
-                                    <th className="px-3 py-2 text-left font-medium border-b-[0.5px] border-[#e0e0e0]">순위</th>
-                                    <th className="px-3 py-2 text-left font-medium border-b-[0.5px] border-[#e0e0e0]">제품명</th>
-                                    <th className="px-3 py-2 text-right font-medium border-b-[0.5px] border-[#e0e0e0]">판매 건수</th>
-                                    <th className="px-3 py-2 text-right font-medium border-b-[0.5px] border-[#e0e0e0]">비중(%)</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {productStats.map((stat, i) => (
-                                    <tr key={i} className={i % 2 === 1 ? 'bg-[#f9f9f9]' : ''}>
-                                      <td className="px-3 py-1.5 border-b-[0.5px] border-[#e0e0e0]">{stat.rank}</td>
-                                      <td className="px-3 py-1.5 border-b-[0.5px] border-[#e0e0e0]">{stat.name}</td>
-                                      <td className="px-3 py-1.5 text-right border-b-[0.5px] border-[#e0e0e0]">{stat.sales}</td>
-                                      <td className="px-3 py-1.5 text-right border-b-[0.5px] border-[#e0e0e0]">{stat.ratio}</td>
+                            {/* 통계 표 */}
+                            {(() => {
+                              const statsKeys: (keyof typeof productStats[0])[] = ['rank', 'name', 'sales', 'ratio'];
+                              const sortedStats = statsSortColumn !== null
+                                ? [...productStats].sort((a, b) => {
+                                    const aVal = String(a[statsKeys[statsSortColumn]]);
+                                    const bVal = String(b[statsKeys[statsSortColumn]]);
+                                    const cmp = aVal.localeCompare(bVal, 'ko', { numeric: true });
+                                    return statsSortDir === 'asc' ? cmp : -cmp;
+                                  })
+                                : productStats;
+                              return (
+                              <div className="border-[0.5px] border-[#e0e0e0] rounded-lg overflow-hidden">
+                                <div className="px-3.5 py-2 border-b-[0.5px] border-[#e0e0e0] text-[12px] text-[#555]">통계 표</div>
+                                <table className="w-full border-collapse text-[12px]">
+                                  <thead>
+                                    <tr className="bg-[#f5f5f5]">
+                                      {[['순위', 'left'], ['제품명', 'left'], ['판매 건수', 'right'], ['비중(%)', 'right']].map(([label, align], colIdx) => (
+                                        <th key={colIdx}
+                                          onClick={() => handleStatsSort(colIdx)}
+                                          className={`px-3 py-2 text-${align} font-medium border-b-[0.5px] border-[#e0e0e0] cursor-pointer hover:bg-[#eeeeee] select-none whitespace-nowrap`}>
+                                          <span className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : ''}`}>
+                                            {label}
+                                            <span className="text-[10px] text-[#ccc]">
+                                              {statsSortColumn === colIdx ? (statsSortDir === 'asc' ? '▲' : '▼') : '↕'}
+                                            </span>
+                                          </span>
+                                        </th>
+                                      ))}
                                     </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
+                                  </thead>
+                                  <tbody>
+                                    {sortedStats.map((stat, i) => (
+                                      <tr key={i} className={i % 2 === 1 ? 'bg-[#f9f9f9]' : ''}>
+                                        <td className="px-3 py-1.5 border-b-[0.5px] border-[#e0e0e0]">{stat.rank}</td>
+                                        <td className="px-3 py-1.5 border-b-[0.5px] border-[#e0e0e0]">{stat.name}</td>
+                                        <td className="px-3 py-1.5 text-right border-b-[0.5px] border-[#e0e0e0]">{stat.sales}</td>
+                                        <td className="px-3 py-1.5 text-right border-b-[0.5px] border-[#e0e0e0]">{stat.ratio}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              );
+                            })()}
+
+                            {/* 차트 */}
                             <div className="border-[0.5px] border-[#e0e0e0] rounded-lg overflow-hidden">
-                              <div className="px-3.5 py-2 border-b-[0.5px] border-[#e0e0e0] text-[12px] text-[#555]">파이 차트</div>
-                              <div className="p-4 flex items-center gap-6">
-                                <div className="flex-shrink-0">
-                                  <PieChart width={180} height={180}>
-                                    <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
-                                      {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                    </Pie>
-                                    <Tooltip />
-                                  </PieChart>
-                                </div>
-                                <div className="flex flex-col gap-2 text-[12px]">
-                                  {chartData.map((item, i) => (
-                                    <div key={i} className="flex items-center gap-2">
-                                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                                      <span>{item.name} <span className="text-[#aaa]">{item.value}%</span></span>
-                                    </div>
+                              <div className="px-3.5 py-2 border-b-[0.5px] border-[#e0e0e0] flex items-center justify-between">
+                                <span className="text-[12px] text-[#555]">차트</span>
+                                <div className="flex items-center gap-1">
+                                  {([['pie','파이'],['bar-v','세로 막대'],['bar-h','가로 막대'],['line','라인']] as const).map(([type, label]) => (
+                                    <button key={type} onClick={() => setChartType(type)}
+                                      className={`text-[11px] px-2 py-0.5 rounded border-[0.5px] transition-colors ${
+                                        chartType === type
+                                          ? 'bg-[#534AB7] text-white border-[#534AB7]'
+                                          : 'text-[#888780] border-[#e0e0e0] hover:border-[#534AB7] hover:text-[#534AB7]'
+                                      }`}>
+                                      {label}
+                                    </button>
                                   ))}
+                                  <button onClick={handleReset} className="ml-1 p-1 text-[#ccc] hover:text-[#534AB7] transition-colors">
+                                    <RotateCcw size={11} />
+                                  </button>
                                 </div>
+                              </div>
+                              <div className="p-4 flex items-center gap-6">
+                                {chartType === 'pie' && (
+                                  <>
+                                    <PieChart width={180} height={180}>
+                                      <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
+                                        {chartData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                                      </Pie>
+                                      <Tooltip />
+                                    </PieChart>
+                                    <div className="flex flex-col gap-2 text-[12px]">
+                                      {chartData.map((item, i) => (
+                                        <div key={i} className="flex items-center gap-2">
+                                          <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
+                                          <span>{item.name} <span className="text-[#aaa]">{item.value}%</span></span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </>
+                                )}
+                                {chartType === 'bar-v' && (
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <BarChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 4 }}>
+                                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                                      <YAxis tick={{ fontSize: 10 }} />
+                                      <Tooltip />
+                                      <Bar dataKey="value" radius={[3,3,0,0]}>
+                                        {chartData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                                      </Bar>
+                                    </BarChart>
+                                  </ResponsiveContainer>
+                                )}
+                                {chartType === 'bar-h' && (
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 8, left: 60, bottom: 4 }}>
+                                      <XAxis type="number" tick={{ fontSize: 10 }} />
+                                      <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={60} />
+                                      <Tooltip />
+                                      <Bar dataKey="value" radius={[0,3,3,0]}>
+                                        {chartData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                                      </Bar>
+                                    </BarChart>
+                                  </ResponsiveContainer>
+                                )}
+                                {chartType === 'line' && (
+                                  <ResponsiveContainer width="100%" height={200}>
+                                    <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 4 }}>
+                                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                                      <YAxis tick={{ fontSize: 10 }} />
+                                      <Tooltip />
+                                      <Line dataKey="value" stroke="#534AB7" strokeWidth={2} dot={{ fill: '#534AB7', r: 3 }} />
+                                    </LineChart>
+                                  </ResponsiveContainer>
+                                )}
                               </div>
                             </div>
                           </>
                         )}
+                        {/* 응답 만족도 피드백 */}
+                        {(() => {
+                          const fb = feedbackMap[idx] || { like: false, dislike: false, showReasons: false, reasons: [], otherText: '' };
+                          return (
+                            <div className="flex flex-col gap-2 mt-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-[#aaa]">답변이 도움이 됐나요?</span>
+                                <button onClick={() => handleLike(idx)}
+                                  className={`p-1 rounded transition-colors ${fb.like ? 'text-[#534AB7]' : 'text-[#ccc] hover:text-[#534AB7]'}`}>
+                                  <ThumbsUp size={13} />
+                                </button>
+                                <button onClick={() => handleDislike(idx)}
+                                  className={`p-1 rounded transition-colors ${fb.dislike ? 'text-red-400' : 'text-[#ccc] hover:text-red-400'}`}>
+                                  <ThumbsDown size={13} />
+                                </button>
+                              </div>
+                              {fb.showReasons && (
+                                <div className="border-[0.5px] border-[#e0e0e0] rounded-lg p-3 flex flex-col gap-2 bg-[#fafafa]">
+                                  <p className="text-[11px] text-[#888780]">어떤 점이 불편하셨나요? (복수 선택 가능)</p>
+                                  <div className="flex flex-col gap-1.5">
+                                    {DISLIKE_REASONS.map(reason => (
+                                      <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox"
+                                          checked={fb.reasons.includes(reason)}
+                                          onChange={() => handleToggleReason(idx, reason)}
+                                          className="w-3 h-3 accent-[#534AB7]" />
+                                        <span className="text-[12px] text-[#555]">{reason}</span>
+                                      </label>
+                                    ))}
+                                    {fb.reasons.includes('기타') && (
+                                      <input type="text"
+                                        value={fb.otherText}
+                                        onChange={e => handleOtherText(idx, e.target.value)}
+                                        placeholder="직접 입력해주세요"
+                                        className="ml-5 px-2 py-1 text-[12px] border-[0.5px] border-[#e0e0e0] rounded outline-none focus:border-[#534AB7] transition-colors" />
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
@@ -1083,12 +1341,19 @@ export default function App() {
                     </div>
                   )}
                   <form onSubmit={handleSubmit}>
-                    <div className="border-[0.5px] border-[#ddd] rounded-xl px-4 py-2.5 flex items-center gap-2 focus-within:border-[#534AB7] transition-colors">
-                      <input type="text" value={message} onChange={e => setMessage(e.target.value)}
-                        onFocus={() => setShowSuggestions(true)} onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    <div className="border-[0.5px] border-[#ddd] rounded-xl px-4 py-2.5 flex items-end gap-2 focus-within:border-[#534AB7] transition-colors">
+                      <textarea
+                        rows={1}
+                        value={message}
+                        onChange={e => { setMessage(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; }}
+                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e as unknown as React.FormEvent); } }}
+                        onFocus={() => setShowSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                         placeholder="궁금한 데이터를 물어보세요."
-                        className="flex-1 border-none outline-none text-[13px] bg-transparent text-[#1a1a1a] placeholder:text-[#aaa]" />
-                      <button type="submit" className="w-7 h-7 rounded-full bg-[#534AB7] hover:bg-[#4239a0] transition-colors flex items-center justify-center flex-shrink-0">
+                        className="flex-1 border-none outline-none text-[13px] bg-transparent text-[#1a1a1a] placeholder:text-[#aaa] resize-none overflow-hidden leading-relaxed"
+                        style={{ height: '24px', maxHeight: '120px' }}
+                      />
+                      <button type="submit" className="w-7 h-7 rounded-full bg-[#534AB7] hover:bg-[#4239a0] transition-colors flex items-center justify-center flex-shrink-0 mb-0.5">
                         <ArrowRight size={14} className="text-white" />
                       </button>
                     </div>
